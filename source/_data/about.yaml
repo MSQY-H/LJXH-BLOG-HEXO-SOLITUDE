@@ -1,0 +1,156 @@
+title: 关于本站
+
+authorinfo:
+  leftTags:
+    - 窗外的麻雀，在电线杆上多嘴
+    - 迷迷蒙蒙，你给的梦
+    - 天青色等烟雨，而我在等你
+  rightTags:
+    - 雨纷纷，旧故里草木深
+    - 缓缓飘落的枫叶像思念
+    - 海风刮过了无人的街道
+  image: /img/avatar.webp
+
+contentinfo: # Top personal information display
+  sup: 你好，很高兴认识你👋
+  name: 我是LJXH # Name
+  title: 学生、独立开发者 # Introduction
+  tip: 个签
+  slogan: NVIDIA GeForce RTX
+  mask:
+    - 5060
+    - 5070
+    - 5080
+    - 5090
+
+skills: # Add as needed
+  title: 技能
+  subtitle: CV万岁！
+  tags:
+    - title: HTML # name
+      img: https://cdn.simpleicons.org/html5/white # url
+      color: "#E34F26" # color
+    - title: JS
+      img: https://cdn.simpleicons.org/javascript/white
+      color: "#F7DF1E"
+    - title: Python
+      img: https://cdn.simpleicons.org/python/white
+      color: "#3776AB"
+    - title: Kotlin
+      img: https://cdn.simpleicons.org/kotlin/white
+      color: "#7F52FF"
+      # Flutter:
+      #   img: https://i.postimg.cc/hPC7T3gB/flutter.png
+      #   color: "#ffffff"
+      # WebPack:
+      #   img: https://i.postimg.cc/dVLZBmtT/webpack.png
+      #   color: "#2e3a41" 
+    - title: Vue
+      img: https://cdn.simpleicons.org/vuedotjs/white
+      color: "#4FC08D"
+    - title: Git
+      img: https://cdn.simpleicons.org/git/white
+      color: "#F03C2E"
+    - title: Docker
+      img: https://cdn.simpleicons.org/docker/white
+      color: "#2496ED"
+    - title: Android
+      img: https://cdn.simpleicons.org/android/white
+      color: "#3DDC84"
+    - title: Github
+      img: https://cdn.simpleicons.org/github/white
+      color: "#181717"
+    - title: Cloudflare
+      img: https://cdn.simpleicons.org/cloudflare/white
+      color: "#F38020"
+    - title: deepseek
+      img: https://cdn.simpleicons.org/deepseek/white
+      color: "#5786FE"
+
+motto:
+  title: 座右铭
+  prefix: 长风破浪会有时，
+  content: 直挂云帆济沧海。
+  
+oneself:
+  location: 中国，广东省
+  birthYear: 20??
+  university: 微信地区
+  major: 冰岛
+  occupation: 学生
+  map:
+    light: /img/map_light.jpg
+    dark: /img/map_dark.jpg
+
+expertise:
+  title: 专长
+  prefix: 使用搜索引擎
+  specialist: 专家
+  content: Deepseek
+  level: 666
+
+cause:
+  tip: 心理
+  title: 为什么建立这个网站？
+  content:
+    <br>一开始，在家里无聊，突然想到可以建一个博客，便做了这个博客
+    <br>
+    与大多数垂直技术博客不同，这里将会什么都有。无论我研究或发现什么，我都会在这里分享。
+    <br>
+    欢迎大家来到LJXH的博客！玩得愉快！
+    <br>
+
+# comic 和 like-technology 二选一 你全要也可以
+likes:
+#   - type: "comic"
+#     tips: 爱好番剧 # 右上角提示
+#     title: 追番 # 标题
+#     subtips: "科幻、动漫、喜剧" # 左下小字，可不要
+#     list: # 最好就是五个或以上，相信你们肯定没那么少的。
+#       - name: 你的名字 # 动漫或影视名
+#         href: https://movie.douban.com/subject/26683290/ # B站或豆瓣某个位置
+#         cover: https://images.418121.xyz/file/blog/covers/p2910701461.webp # 封面图
+#       - name: 四月是你的谎言
+#         href: https://www.bilibili.com/bangumi/media/md1699
+#         cover: https://images.418121.xyz/file/blog/covers/p2232343678.webp
+#       - name: 流浪地球2
+#         href: https://movie.douban.com/subject/35267208/
+#         cover: https://images.418121.xyz/file/blog/covers/p2886653882.webp
+#       - name: 花束般的恋爱
+#         href: https://movie.douban.com/subject/34874432/
+#         cover: https://images.418121.xyz/file/blog/covers/p2868462052.webp
+#       - name: 天气之子
+#         href: https://movie.douban.com/subject/30402296/
+#         cover: https://images.418121.xyz/file/blog/covers/p2558022335.webp
+#     button: false # false 可以关闭右边按钮
+#     button_link: "/pyq/" # 跳转路径
+#     button_text: "观看记录" # 按钮文字
+  - type: "like-technology"
+    bg: "/img/railway.webp"
+    tips: "喜欢的东西"
+    title: "铁路"
+    subtips: "CR YYDS"
+  - type: "like-technology"
+    bg: "/img/mc.png"
+    tips: "喜欢的游戏"
+    title: "Minecraft"
+    subtips: "Bugjang 666"
+  - type: "like-technology"
+    bg: "/img/horizon.jpg"
+    tips: "喜欢的游戏"
+    title: "Forza Horizon 4"
+    subtips: "😋"
+  - type: "like-music"
+    bg: "https://is1-ssl.mzstatic.com/image/thumb/Video221/v4/1b/11/22/1b11228a-3eca-f6e7-8c30-964fb976fd4c/55678cf6ee3cb63b9ba09fa557df09d6_Preview_Image_Intermediate_nonvideo_437341045_2647778896.png/2400x1350mv.webp"
+    tips: "喜欢的歌"
+    title: "周杰伦"
+    subtips: "和 LJXH 一起听"
+    button: true
+    button_link: "/music/"
+    button_text: "音乐馆"
+    
+tenyear: 
+  tips: 十年之约
+  title: 一个人的寂寞，一群人的狂欢
+  start: 2026-06-12
+  end: 2036-06-12

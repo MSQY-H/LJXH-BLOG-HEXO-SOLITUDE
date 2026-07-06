@@ -1,0 +1,32 @@
+banner_suffix: 
+links: 
+  - class_name: 框架与主题 # 分类名称 
+    descr: 本站使用的框架与主题 # 分类简介 
+    type: item # 显示方式，有两种card/item 
+    suffix: 
+    link_list: 
+      - name: Hexo # 友链名称 
+        link: https://hexo.io # 友链地址 
+        description: 快速、简洁且高效的博客框架 # 友链简介 
+        avatar: /img/pwa/favicon.png # 显示头像 
+        tag: 框架
+        color: blue
+      - name: Solitude
+        link: https://solitude.js.org/
+        description: 一款设计师风格的 Hexo 主题，支持懒加载、PWA、Latex以及多种评论系统。 
+        avatar: https://everfu.github.io/solitude-demo/img/logo.png
+        tag: 主题
+        color: black
+  - class_name: 友情链接 # 分类名称 
+    descr: 一些友链 # 分类简介 
+    type: item # 显示方式，有两种card/item 
+    suffix: 
+    link_list: 
+      - name: LJXH LIFE
+        link: https://life.ljxh-h.cc.cd/
+        description: LJXH的生活博客
+        avatar: /img/avatar.webp
+      - name: HXJL BLOG # 友链名称 
+        link: https://blog.ljxh-blog.cc.cd # 友链地址 
+        description: HXJL的博客 # 友链简介 
+        avatar: https://i.ibb.co/WW9gRnNk/IMG-20251228-111816.jpg# 显示头像 

@@ -1,0 +1,12 @@
+- class_name: 我的设备
+  description: 我拥有的设备
+  equipment_list:
+      - name: HUAWEI WATCH FIT 3
+        specification: 幻夜黑
+        description: 搭载1.82英寸AMOLED圆角矩形屏幕，采用9.9mm厚度的铝合金表身，整机重量26克
+        image: https://2b.zol-img.com.cn/product/263_1067x800/443/ceznfm3HHQ3IM.jpg
+      - name: HUAWEI Freebuds 6i
+        specification: 幻夜黑
+        description: 旗舰级降噪深度，智慧动态降噪 3.0，低音澎湃
+        image: https://res.vmallres.com/pimages/uomcdn/CN/pms/202407/gbom/6942103123511/800_800_33C15F5EA8002E80628539AB2448D40Amp.png
+        link: https://item.m.vmall.com/product/comdetail/index.html?prdId=10086579314415&cid=92179182
