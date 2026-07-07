@@ -9,6 +9,7 @@ const serveStatic = require('serve-static');
 // ---------- 参数解析 ----------
 let PORT = 3000;
 let silent = false;
+let quickMode = false;   // -q 跳过手动延迟
 
 const args = process.argv.slice(2);
 for (let i = 0; i < args.length; i++) {
@@ -19,21 +20,25 @@ for (let i = 0; i < args.length; i++) {
 
 选项:
   -s, --silent    静默模式，不输出 hexo 日志（错误除外）
+  -q, --quick     快速模式，省略手动添加的延迟（防抖延迟除外）
   -h, --help      显示此帮助信息
 
 示例:
   node dev.js 4000
   node dev.js -s 4000
+  node dev.js -q
 `);
     process.exit(0);
   } else if (arg === '-s' || arg === '--silent') {
     silent = true;
+  } else if (arg === '-q' || arg === '--quick') {
+    quickMode = true;
   } else if (/^\d+$/.test(arg) && PORT === 3000) {
     PORT = parseInt(arg, 10);
   }
 }
 
-const CWD = process.cwd();          // 用户博客根目录
+const CWD = process.cwd();
 const PUBLIC_DIR = path.join(CWD, 'public');
 const WATCH_PATHS = [
   'source',
@@ -48,7 +53,7 @@ const BAR_LENGTH = 20;
 const BOUNCE_WIDTH = 3;
 const FRAME_ACTIVE = 100;
 const FRAME_IDLE = 500;
-const FILL_STAY = 500;
+const FILL_STAY = quickMode ? 0 : 500;   // -q 时填充立即消失
 const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
 // ---------- 状态 ----------
@@ -68,11 +73,17 @@ let spinnerIdx = 0;
 let pendingLogs = [];
 let currentBuildProcess = null;
 
+let initializing = false;
+let serverStarting = false;
+let buildStartTime = 0;
+let firstBuild = false;
+
 // ---------- 颜色 ----------
 const RESET = '\x1b[0m';
 const BG_BUILD = '\x1b[48;5;208m\x1b[30m';
 const BG_RUN   = '\x1b[42m\x1b[37m';
 const BG_FAIL  = '\x1b[41m\x1b[37m';
+const BG_INIT  = '\x1b[44m\x1b[37m';
 
 const LEVEL_COLORS = {
   INFO:  '\x1b[36m',
@@ -82,6 +93,16 @@ const LEVEL_COLORS = {
   SUCCESS:'\x1b[32m',
   DEBUG: '\x1b[35m',
 };
+
+// ---------- 时间格式化 ----------
+function formatTime(seconds) {
+  if (seconds >= 60) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}m${secs}s`;
+  }
+  return `${seconds.toFixed(1)}s`;
+}
 
 // ---------- 进度条 ----------
 function getProgressBar() {
@@ -94,24 +115,156 @@ function getProgressBar() {
   return bar;
 }
 
-// ---------- 状态栏 ----------
+// ---------- 统一日志系统 ----------
+function flushLogs() {
+  if (!pendingLogs.length) return;
+  const lines = [...pendingLogs];
+  pendingLogs = [];
+  process.stdout.write('\r\x1b[K');
+  lines.forEach(l => console.log(l));
+}
+
+const YARN_PATTERN = /This project is configured to use yarn/i;
+
+// 核心日志函数
+function outputLog(category, levelOrType, message, extra = {}) {
+  if (category === 'hexo') {
+    // hexo 输出处理，与原来的 logHexo 逻辑相同
+    let line = message.trimEnd();
+    if (!line || YARN_PATTERN.test(line)) return;
+
+    const match = line.match(/^(INFO|WARN|ERROR|DEBUG)\s+(.*)/i);
+    let level = 'INFO', msg = line;
+    if (match) { level = match[1].toUpperCase(); msg = match[2]; }
+
+    const isFatal = /\b(FATAL|YAMLException)\b/i.test(line);
+    const isErrorDesc = /Error:\s/i.test(line);
+    const isCodeLine = /^\s+\d+\s*\|/.test(line) || line.includes('---^');
+    const isStackLine = /^\s+at\s/.test(line);
+    const isError = (level === 'ERROR') || isFatal || isErrorDesc || isCodeLine || isStackLine;
+
+    if (silent && !isError) return;
+
+    let prefixColor;
+    if (level === 'INFO') prefixColor = LEVEL_COLORS.INFO;
+    else if (level === 'DEBUG') prefixColor = LEVEL_COLORS.DEBUG;
+    else prefixColor = LEVEL_COLORS.HEXO_ERROR;
+
+    let bodyColor = '';
+    if (level === 'ERROR' || isFatal || isErrorDesc) bodyColor = '\x1b[31m';
+    else if (isCodeLine) bodyColor = '\x1b[34m';
+    else if (isStackLine) bodyColor = '\x1b[33m';
+
+    const prefix = ` ${prefixColor}│➤ [hexo] [${level}]${RESET}`;
+    const body = bodyColor ? `${bodyColor}${msg}${RESET}` : msg;
+    pendingLogs.push(`${prefix} ${body}`);
+
+  } else if (category === 'dev') {
+    // dev 日志，直接输出
+    process.stdout.write('\r\x1b[K');
+    let prefix, body, color = '';
+    const type = levelOrType;
+
+    if (type === 'stepStart') {
+      color = LEVEL_COLORS.INFO;
+      prefix = ` ${color}┌➤ [dev] [INFO]${RESET}`;
+      body = `${extra.emoji || '🚀'} ${message}`;
+    } else if (type === 'stepMid') {
+      color = LEVEL_COLORS.INFO;
+      prefix = ` ${color}│➤ [dev] [INFO]${RESET}`;
+      body = `📘 ${message}`;
+    } else if (type === 'stepEndSuccess') {
+      color = LEVEL_COLORS.SUCCESS;
+      prefix = ` ${color}└➤ [dev] [SUCCESS]${RESET}`;
+      body = `✨ ${message}`;
+    } else if (type === 'stepEndFail') {
+      color = LEVEL_COLORS.ERROR;
+      prefix = ` ${color}└➤ [dev] [ERROR]${RESET}`;
+      body = `❌ ${message}`;
+    } else if (type === 'info') {
+      color = LEVEL_COLORS.INFO;
+      prefix = `  ➤ ${color}[dev] [INFO]${RESET}`;
+      body = `📘 ${message}`;
+    } else {
+      // fallback
+      prefix = `[dev]`;
+      body = message;
+    }
+    console.log(`${prefix} ${body}`);
+  }
+}
+
+// 便捷包装
+function logHexoLine(line) {
+  outputLog('hexo', null, line);
+}
+function logStepStart(msg, emoji = '🚀') {
+  outputLog('dev', 'stepStart', msg, { emoji });
+}
+function logStepMid(msg) {
+  outputLog('dev', 'stepMid', msg);
+}
+function logStepEndSuccess(msg) {
+  outputLog('dev', 'stepEndSuccess', msg);
+}
+function logStepEndFail(msg) {
+  outputLog('dev', 'stepEndFail', msg);
+}
+function devInfo(msg) {
+  outputLog('dev', 'info', msg);
+}
+
+function printShortcuts() {
+  devInfo('快捷键: Ctrl+C 退出 | Ctrl+R 完整重建 | Ctrl+S 启动/重启服务器');
+}
+
+// ---------- 获取局域网 IP ----------
+function getLocalIP() {
+  const nets = os.networkInterfaces();
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) return net.address;
+    }
+  }
+  return '127.0.0.1';
+}
+
+// ---------- 状态栏渲染 ----------
 function renderLine() {
   flushLogs();
   updateProgress();
 
   let bgStyle;
-  if (isBuilding) bgStyle = BG_BUILD;
-  else if (lastBuildFailed) bgStyle = BG_FAIL;
-  else if (server) bgStyle = BG_RUN;
-  else bgStyle = RESET;
+  if (initializing) {
+    bgStyle = BG_INIT;
+  } else if (isBuilding) {
+    bgStyle = BG_BUILD;
+  } else if (lastBuildFailed) {
+    bgStyle = BG_FAIL;
+  } else if (serverStarting || server) {
+    bgStyle = BG_RUN;   // 启动中或运行中均绿色
+  } else {
+    bgStyle = RESET;
+  }
 
   const spinner = isBuilding ? SPINNER_FRAMES[spinnerIdx % SPINNER_FRAMES.length] : ' ';
-  const mark = server ? '' : '[x]';
+  const mark = (server && !serverStarting) ? '' : '[x]';
   let statusText;
-  if (isBuilding) statusText = `构建中 ${mark}端口:${PORT}`;
-  else if (lastBuildFailed) statusText = `构建失败 ${mark}端口:${PORT}`;
-  else if (server) statusText = `运行中 端口:${PORT}`;
-  else statusText = `初始化 ${mark}端口:${PORT}`;
+
+  if (initializing) {
+    statusText = `初始化中 ${mark}端口:${PORT}`;
+  } else if (serverStarting) {
+    statusText = `启动服务器中 ${mark}端口:${PORT}`;
+  } else if (isBuilding) {
+    const elapsed = buildStartTime ? (Date.now() - buildStartTime) / 1000 : 0;
+    statusText = `构建中 ${formatTime(elapsed)} ${mark}端口:${PORT}`;
+  } else if (lastBuildFailed) {
+    statusText = `构建失败 ${mark}端口:${PORT}`;
+  } else if (server) {
+    statusText = `运行中 端口:${PORT}`;
+  } else {
+    statusText = `就绪 ${mark}端口:${PORT}`;
+  }
 
   process.stdout.write(`\r\x1b[K${bgStyle} ${spinner} [${getProgressBar()}] ${statusText} ${RESET}`);
 }
@@ -127,104 +280,37 @@ function updateProgress() {
   }
 }
 
-// ---------- 日志系统 ----------
-function flushLogs() {
-  if (!pendingLogs.length) return;
-  const lines = [...pendingLogs];
-  pendingLogs = [];
-  process.stdout.write('\r\x1b[K');
-  lines.forEach(l => console.log(l));
-}
-
-const YARN_PATTERN = /This project is configured to use yarn/i;
-
-function logHexo(line) {
-  line = line.trimEnd();
-  if (!line || YARN_PATTERN.test(line)) return;
-
-  const match = line.match(/^(INFO|WARN|ERROR|DEBUG)\s+(.*)/i);
-  let level = 'INFO', msg = line;
-  if (match) { level = match[1].toUpperCase(); msg = match[2]; }
-
-  const isFatal = /\b(FATAL|YAMLException)\b/i.test(line);
-  const isErrorDesc = /Error:\s/i.test(line);
-  const isCodeLine = /^\s+\d+\s*\|/.test(line) || line.includes('---^');
-  const isStackLine = /^\s+at\s/.test(line);
-  const isError = (level === 'ERROR') || isFatal || isErrorDesc || isCodeLine || isStackLine;
-
-  if (silent && !isError) return;
-
-  let prefixColor;
-  if (level === 'INFO') prefixColor = LEVEL_COLORS.INFO;
-  else if (level === 'DEBUG') prefixColor = LEVEL_COLORS.DEBUG;
-  else prefixColor = LEVEL_COLORS.HEXO_ERROR;
-
-  let bodyColor = '';
-  if (level === 'ERROR') {
-    bodyColor = '\x1b[31m';
-  } else if (isFatal || isErrorDesc) {
-    bodyColor = '\x1b[31m';
-  } else if (isCodeLine) {
-    bodyColor = '\x1b[34m';
-  } else if (isStackLine) {
-    bodyColor = '\x1b[33m';
-  }
-
-  const prefix = ` ${prefixColor}│➤ [hexo] [${level}]${RESET}`;
-  const body = bodyColor ? `${bodyColor}${msg}${RESET}` : msg;
-  pendingLogs.push(`${prefix} ${body}`);
-}
-
-// 步骤日志
-function logStepStart(msg) {
-  process.stdout.write(`\r\x1b[K ${LEVEL_COLORS.INFO}┌➤ [dev] [INFO]${RESET} 🚀 ${msg}\n`);
-}
-function logStepMid(msg) {
-  process.stdout.write(`\r\x1b[K ${LEVEL_COLORS.INFO}│➤ [dev] [INFO]${RESET} 📘 ${msg}\n`);
-}
-function logStepEnd(msg, success = true) {
-  const emoji = success ? '✨' : '❌';
-  const level = success ? 'SUCCESS' : 'ERROR';
-  const color = LEVEL_COLORS[level];
-  process.stdout.write(`\r\x1b[K ${color}└➤ [dev] [${level}]${RESET} ${emoji} ${msg}\n`);
-}
-function devInfo(msg) {
-  process.stdout.write(`\r\x1b[K  ➤ ${LEVEL_COLORS.INFO}[dev] [INFO]${RESET} 📘 ${msg}\n`);
-}
-
-function printShortcuts() {
-  devInfo('按 Ctrl+C 退出，Ctrl+R 完整重建');
-}
-
-// ---------- 获取局域网 IP ----------
-function getLocalIP() {
-  const nets = os.networkInterfaces();
-  for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-      if (net.family === 'IPv4' && !net.internal) return net.address;
-    }
-  }
-  return '127.0.0.1';
-}
-
 // ---------- 服务器 ----------
 function startServer() {
-  if (server) return;
-  const app = express();
-  app.use(serveStatic(PUBLIC_DIR, { index: 'index.html', setHeaders: res => res.setHeader('Cache-Control', 'no-cache') }));
-  app.use((req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
+  if (server || serverStarting) return;
+  serverStarting = true;
 
-  logStepStart('启动服务器');
-  server = app.listen(PORT, () => {
-    const localIP = getLocalIP();
-    logStepMid(`本地访问: http://localhost:${PORT}`);
-    logStepMid(`局域网访问: http://${localIP}:${PORT}`);
-    logStepMid('文件监控已就绪');
-    logStepEnd('服务器已启动', true);
-    printShortcuts();
-    scheduleScroll();
-  });
-  server.on('error', err => logStepEnd(`服务器错误: ${err.message}`, false));
+  outputLog('dev', 'stepStart', '启动服务器', '🚀');
+
+  const delay = quickMode ? 0 : 1000;
+  setTimeout(() => {
+    const app = express();
+    app.use(serveStatic(PUBLIC_DIR, { index: 'index.html', setHeaders: res => res.setHeader('Cache-Control', 'no-cache') }));
+    app.use((req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
+
+    const httpServer = app.listen(PORT, () => {
+      serverStarting = false;
+      server = httpServer;               // ✅ 改为赋值 HTTP 服务器实例
+      const localIP = getLocalIP();
+      outputLog('dev', 'stepMid', `本地访问: http://localhost:${PORT}`);
+      outputLog('dev', 'stepMid', `局域网访问: http://${localIP}:${PORT}`);
+      outputLog('dev', 'stepMid', '文件监控已就绪');
+      outputLog('dev', 'stepEndSuccess', '服务器已启动');
+      printShortcuts();
+      scheduleScroll();
+    });
+
+    // 错误处理需要挂在 httpServer 上
+    httpServer.on('error', err => {
+      serverStarting = false;
+      outputLog('dev', 'stepEndFail', `服务器错误: ${err.message}`);
+    });
+  }, delay);
 }
 
 // ---------- 文件监控 ----------
@@ -239,6 +325,7 @@ function startWatcher() {
   watcher.on('unlink', p => { scheduleBuild(`删除: ${p}`); devInfo(`文件删除: ${p}`); });
   watcher.on('ready', () => {
     watcherReady = true;
+    // 如果服务器还未启动（可能被快速构建先调用了），则启动
     startServer();
   });
 }
@@ -258,12 +345,14 @@ function build(trigger) {
 
   isBuilding = true;
   lastBuildFailed = false;
+  initializing = false;
   progressMode = 'bounce';
   sliderWidth = BOUNCE_WIDTH;
   sliderPos = 0;
   dir = 1;
+  buildStartTime = Date.now();
 
-  logStepStart(`构建开始 (${trigger})`);
+  outputLog('dev', 'stepStart', `构建开始 (${trigger})`);
   forceRender();
   currentBuildProcess = runHexo(['g', '--incremental']);
 }
@@ -273,12 +362,15 @@ function fullRebuild() {
 
   isBuilding = true;
   lastBuildFailed = false;
+  initializing = false;
   progressMode = 'bounce';
   sliderWidth = BOUNCE_WIDTH;
   sliderPos = 0;
   dir = 1;
+  const totalStart = Date.now();
+  buildStartTime = totalStart;
 
-  logStepStart('完整重建 (hexo clean + hexo g)');
+  outputLog('dev', 'stepStart', '完整重建 - 清理 (hexo clean)');
   forceRender();
 
   const clean = spawn('hexo', ['clean'], { cwd: CWD, stdio: ['ignore','pipe','pipe'] });
@@ -288,72 +380,134 @@ function fullRebuild() {
     cleanOut += d.toString();
     const lines = cleanOut.split('\n');
     cleanOut = lines.pop();
-    lines.forEach(logHexo);
+    lines.forEach(logHexoLine);
   });
   clean.stderr.on('data', d => {
     cleanErr += d.toString();
     const lines = cleanErr.split('\n');
     cleanErr = lines.pop();
-    lines.forEach(logHexo);
+    lines.forEach(logHexoLine);
   });
+
   clean.on('close', code => {
-    if (cleanOut) logHexo(cleanOut);
-    if (cleanErr) logHexo(cleanErr);
+    if (cleanOut) logHexoLine(cleanOut);
+    if (cleanErr) logHexoLine(cleanErr);
     if (currentBuildProcess !== clean) return;
+
+    const cleanTime = (Date.now() - totalStart) / 1000;
     if (code !== 0) {
       isBuilding = false;
       lastBuildFailed = true;
-      logStepEnd('clean 失败，重建中止', false);
+      outputLog('dev', 'stepEndFail', `清理失败 (${formatTime(cleanTime)})，重建中止`);
       currentBuildProcess = null;
       startFillThenScroll();
       return;
     }
-    currentBuildProcess = runHexo(['g']);
+    outputLog('dev', 'stepEndSuccess', `清理完成 (${formatTime(cleanTime)})`);
+
+    // 开始生成步骤
+    outputLog('dev', 'stepStart', '完整重建 - 生成 (hexo g)');
+    const genStart = Date.now();
+    currentBuildProcess = runHexo(['g'], {
+      suppressEndLog: true,
+      onClose: (genCode) => {
+        const genTime = (Date.now() - genStart) / 1000;
+        const totalTime = (Date.now() - totalStart) / 1000;
+
+        if (genCode === 0) {
+          outputLog('dev', 'stepEndSuccess', `生成完成 (${formatTime(genTime)})`);
+          outputLog('dev', 'stepEndSuccess', `完整重建完成，总耗时 ${formatTime(totalTime)}`);
+        } else {
+          outputLog('dev', 'stepEndFail', `生成失败 (${formatTime(genTime)})，退出码 ${genCode}`);
+          outputLog('dev', 'stepEndFail', `完整重建失败，总耗时 ${formatTime(totalTime)}`);
+        }
+        // 状态已由 runHexo 更新，无需重复
+      }
+    });
   });
+
   clean.on('error', err => {
     if (currentBuildProcess !== clean) return;
+    const cleanTime = (Date.now() - totalStart) / 1000;
     isBuilding = false;
     lastBuildFailed = true;
-    logStepEnd(`clean 错误: ${err.message}`, false);
+    outputLog('dev', 'stepEndFail', `清理错误: ${err.message} (${formatTime(cleanTime)})`);
     currentBuildProcess = null;
     startFillThenScroll();
   });
 }
 
-function runHexo(args) {
+function runHexo(args, opts = {}) {
+  const { suppressEndLog = false, onClose } = opts;
   const child = spawn('hexo', args, { cwd: CWD, stdio: ['ignore','pipe','pipe'] });
   let outBuf = '', errBuf = '';
+
   child.stdout.on('data', d => {
     outBuf += d.toString();
     const lines = outBuf.split('\n');
     outBuf = lines.pop();
-    lines.forEach(logHexo);
+    lines.forEach(logHexoLine);
   });
   child.stderr.on('data', d => {
     errBuf += d.toString();
     const lines = errBuf.split('\n');
     errBuf = lines.pop();
-    lines.forEach(logHexo);
+    lines.forEach(logHexoLine);
   });
+
   child.on('close', code => {
     if (currentBuildProcess !== child) return;
-    if (outBuf) logHexo(outBuf);
-    if (errBuf) logHexo(errBuf);
+    if (outBuf) logHexoLine(outBuf);
+    if (errBuf) logHexoLine(errBuf);
+
+    const elapsed = (Date.now() - buildStartTime) / 1000;
     isBuilding = false;
     lastBuildFailed = (code !== 0);
     currentBuildProcess = null;
-    if (code === 0) logStepEnd('构建完成', true);
-    else logStepEnd(`构建失败，退出码 ${code}`, false);
+
+    if (!suppressEndLog) {
+      if (code === 0) {
+        outputLog('dev', 'stepEndSuccess', `构建完成 (${formatTime(elapsed)})`);
+      } else {
+        outputLog('dev', 'stepEndFail', `构建失败 (${formatTime(elapsed)})，退出码 ${code}`);
+      }
+    }
+
+    // 首次构建成功后自动启动服务器和监控
+    if (firstBuild && code === 0) {
+      firstBuild = false;
+      startWatcher();     // 内部会调用 startServer
+      // 如果 watcher 还没 ready，startServer 会直接执行（因为 serverStarting 锁）
+      startServer();      // 立即尝试启动，防止等待 watcher ready 延迟
+    } else if (firstBuild && code !== 0) {
+      firstBuild = false;
+      // 首次构建失败直接退出，但需要打印总耗时
+      outputLog('dev', 'stepEndFail', `首次构建失败，退出`);
+      process.exit(1);
+    }
+
+    if (onClose) onClose(code);
     startFillThenScroll();
   });
+
   child.on('error', err => {
     if (currentBuildProcess !== child) return;
+    const elapsed = (Date.now() - buildStartTime) / 1000;
     isBuilding = false;
     lastBuildFailed = true;
     currentBuildProcess = null;
-    logStepEnd(`构建进程错误: ${err.message}`, false);
+
+    if (!suppressEndLog) {
+      outputLog('dev', 'stepEndFail', `构建进程错误: ${err.message} (${formatTime(elapsed)})`);
+    }
+    if (firstBuild) {
+      firstBuild = false;
+      process.exit(1);
+    }
+    if (onClose) onClose(-1);
     startFillThenScroll();
   });
+
   return child;
 }
 
@@ -363,16 +517,26 @@ function startFillThenScroll() {
   sliderWidth = BAR_LENGTH;
   sliderPos = 0;
   progressMode = 'fill';
-  setTimeout(() => {
+  if (FILL_STAY > 0) {
+    setTimeout(() => {
+      if (server && !isBuilding) {
+        sliderWidth = BOUNCE_WIDTH;
+        sliderPos = -sliderWidth;
+        progressMode = 'scroll';
+      }
+    }, FILL_STAY);
+  } else {
+    // -q 模式直接变为滚动
     if (server && !isBuilding) {
       sliderWidth = BOUNCE_WIDTH;
       sliderPos = -sliderWidth;
       progressMode = 'scroll';
     }
-  }, FILL_STAY);
+  }
 }
+
 function scheduleScroll() {
-  if (!isBuilding && server && progressMode !== 'scroll') {
+  if (!isBuilding && server && !serverStarting && progressMode !== 'scroll') {
     sliderWidth = BOUNCE_WIDTH;
     sliderPos = -sliderWidth;
     progressMode = 'scroll';
@@ -383,14 +547,18 @@ function scheduleBuild(trigger) {
   if (buildTimer) clearTimeout(buildTimer);
   buildTimer = setTimeout(() => { buildTimer = null; build(trigger); }, DEBOUNCE_DELAY);
 }
+
 function forceRender() {
   if (renderTimeout) { clearTimeout(renderTimeout); renderTimeout = null; }
   renderLine();
   scheduleRender();
 }
+
 function scheduleRender() {
   if (renderTimeout) clearTimeout(renderTimeout);
-  const interval = (isBuilding || progressMode === 'fill') ? FRAME_ACTIVE : FRAME_IDLE;
+  // 初始化状态使用与构建相同的刷新间隔
+  const active = initializing || isBuilding || serverStarting || progressMode === 'fill';
+  const interval = active ? FRAME_ACTIVE : FRAME_IDLE;
   renderTimeout = setTimeout(() => {
     spinnerIdx++;
     renderLine();
@@ -430,61 +598,21 @@ function printWelcome() {
   printShortcuts();
 }
 
-// ---------- 首次构建 ----------
-function init() {
-  printWelcome();
-  if (!fs.existsSync(PUBLIC_DIR)) fs.mkdirSync(PUBLIC_DIR, { recursive: true });
-
-  scheduleRender();
-  logStepStart('首次构建');
-  isBuilding = true;
-  lastBuildFailed = false;
-  progressMode = 'bounce';
-  sliderWidth = BOUNCE_WIDTH;
-  sliderPos = 0;
-  dir = 1;
-  forceRender();
-
-  currentBuildProcess = runHexo(['g', '--incremental']);
-
-  if (currentBuildProcess) {
-    currentBuildProcess._firstBuild = true;
-    const origClose = currentBuildProcess.listeners('close')[0];
-    currentBuildProcess.removeAllListeners('close');
-    currentBuildProcess.on('close', code => {
-      if (currentBuildProcess !== currentBuildProcess) return;
-      if (currentBuildProcess._firstBuild) {
-        flushLogs();
-        if (code === 0) {
-          logStepEnd('首次构建完成', true);
-          startFillThenScroll();
-          startWatcher();
-        } else {
-          logStepEnd(`首次构建失败，退出码 ${code}`, false);
-          process.exit(1);
-        }
-        isBuilding = false;
-        lastBuildFailed = (code !== 0);
-        currentBuildProcess = null;
-      } else {
-        origClose(code);
-      }
+// ---------- Ctrl+S 重启服务器 ----------
+function restartServer() {
+  if (server) {
+    devInfo('正在重启服务器...');
+    server.close(() => {
+      server = null;
+      startServer();
     });
+  } else {
+    devInfo('正在启动服务器...');
+    startServer();
   }
-
-  if (process.stdin.isTTY) {
-    process.stdin.setRawMode(true);
-    process.stdin.resume();
-    process.stdin.on('data', chunk => {
-      if (chunk.length === 1) {
-        if (chunk[0] === 18) fullRebuild();
-        else if (chunk[0] === 3) gracefulExit();
-      }
-    });
-  }
-  process.on('SIGINT', gracefulExit);
 }
 
+// ---------- 退出 ----------
 function gracefulExit() {
   process.stdout.write(`\r\x1b[K${RESET}\n`);
   console.log('👋 感谢使用，下次见 (´• ω •`)ﾉ ♪');
@@ -493,6 +621,50 @@ function gracefulExit() {
   if (watcher) watcher.close();
   if (process.stdin.isTTY) { process.stdin.setRawMode(false); process.stdin.pause(); }
   process.exit(0);
+}
+
+// ---------- 初始化 ----------
+function init() {
+  // 先显示蓝色进度条（初始化状态）
+  initializing = true;
+  scheduleRender();
+
+  // 输出欢迎语
+  printWelcome();
+
+  if (!fs.existsSync(PUBLIC_DIR)) fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+
+  // 延迟 1 秒后开始首次构建（-q 则无延迟）
+  const delay = quickMode ? 0 : 1000;
+  setTimeout(() => {
+    outputLog('dev', 'stepStart', '首次构建');
+    firstBuild = true;
+    isBuilding = true;
+    lastBuildFailed = false;
+    initializing = false;
+    progressMode = 'bounce';
+    sliderWidth = BOUNCE_WIDTH;
+    sliderPos = 0;
+    dir = 1;
+    buildStartTime = Date.now();
+    forceRender();
+
+    currentBuildProcess = runHexo(['g', '--incremental']);
+  }, delay);
+
+  // 键盘监听
+  if (process.stdin.isTTY) {
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.on('data', chunk => {
+      if (chunk.length === 1) {
+        if (chunk[0] === 3) gracefulExit();          // Ctrl+C
+        else if (chunk[0] === 18) fullRebuild();     // Ctrl+R
+        else if (chunk[0] === 19) restartServer();   // Ctrl+S
+      }
+    });
+  }
+  process.on('SIGINT', gracefulExit);
 }
 
 init();

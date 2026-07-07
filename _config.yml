@@ -100,7 +100,9 @@ ignore:
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
 theme: solitude
-
+plugins:
+  - hexo-solitude-tag
+  
 search:
   path: search.xml
   field: post
