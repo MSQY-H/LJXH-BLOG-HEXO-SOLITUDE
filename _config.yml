@@ -5,11 +5,11 @@
 # Site
 title: LJXH
 subtitle: 'NVIDIA GeForce RTX 5060 Ti'
-description: 'LJXH的博客'
-keywords:
+description: '这里是LJXH的博客，分享生活和发现'
+keywords: 博客, Hexo, Solitude, LJXH
 author: LJXH
 language: zh-CN
-timezone: ''
+timezone: 'asia/Shanghai'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
@@ -93,6 +93,7 @@ pagination_dir: page
 # Include / Exclude file(s)
 ## include:/exclude: options only apply to the 'source/' folder
 include:
+  - "_redirects"
 exclude:
 ignore:
 
