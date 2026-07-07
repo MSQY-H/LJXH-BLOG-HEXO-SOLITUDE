@@ -1,0 +1,6 @@
+name = "ljxh-blog-hexo-solitude"
+compatibility_date = "2026-07-07"
+
+[assets]
+directory = "../public"  # 替换为你的构建输出目录
+html_handling = "none"  # 关键：完全禁用内置HTML处理
