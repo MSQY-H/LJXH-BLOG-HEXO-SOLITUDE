@@ -5,7 +5,7 @@
 # Site
 title: LJXH
 subtitle: 'NVIDIA GeForce RTX 5060 Ti'
-description: '这里是LJXH的博客，分享生活和发现'
+description: '这里是LJXH的博客，分享生活和发现。长风破浪会有时，直挂云帆济沧海！'
 keywords: 博客, Hexo, Solitude, LJXH
 author: LJXH
 language: zh-CN
@@ -93,8 +93,7 @@ pagination_dir: page
 # Include / Exclude file(s)
 ## include:/exclude: options only apply to the 'source/' folder
 include:
-  - "_redirects"
-  - "wrangler.toml"
+  - "robots.txt"
 exclude:
 ignore:
 
@@ -115,15 +114,17 @@ search:
 deploy:
   type: ''
   
+# 更加美观的RSS订阅源
+# see：https://github.com/willow-god/hexo-pretty-feed
 feed:
-  type: rss2                #你可以选择 atom 或 rss2（atom好像有问题，建议用rss2）。
-  path: rss2.xml            #生成的 RSS 文件的路径。可以使用 atom.xml 或 rss2.xml。
-  limit: 20                 #限制显示的文章数量，默认是 20 篇文章。
-  hub:                      #可选项，用于添加 WebSub（以前的 PubSubHubbub）hub URL。
-  content:                  #可选项，设置是否在 feed 中显示文章内容。留空表示显示完整内容。
-  content_limit:            #可选项，用于限制文章内容的字数。
-  content_limit_delim: ' '  #当文章内容超出 content_limit 时的截断符。
-  order_by: -date           #定义文章排序规则，默认为按日期倒序。
+  enable: true
+  content: false
+  content_limit: 40
+  type: rss2
+  path: rss2.xml
+  limit: 25
+#  pretty_atom_file: /config/feed/atom.xsl
+#  pretty_rss2_file: /config/feed/rss2.xsl
   
 sitemap:
     path: sitemap.xml

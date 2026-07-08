@@ -265,6 +265,7 @@ post:
   ai:
     enable: true
     modelName: Deepseek
+    loading: 拼命加载中…
   # Article meta information
   # 文章元信息
   meta:
@@ -634,7 +635,7 @@ keyboard:
 # 懒加载
 lazyload:
   enable: true
-  field: post
+  field: site
   placeholder: ""
   errorimg: /img/error_load.webp
 # --------------------------- end ---------------------------

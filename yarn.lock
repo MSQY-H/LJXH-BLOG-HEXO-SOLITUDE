@@ -129,13 +129,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nodable/entities@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@nodable/entities@npm:2.2.0"
-  checksum: 10c0/a5ace5b2f747ae5b851f68a1731526c3e10feacde80469415d15a0df0e960251b515e3cd4ea080a3534e0610ac74b0d3252f607ef2f536bcc97e22d324231578
-  languageName: node
-  linkType: hard
-
 "@types/trusted-types@npm:^2.0.7":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
@@ -892,7 +885,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:^7.0.0, entities@npm:^7.0.1":
+"entities@npm:^7.0.1":
   version: 7.0.1
   resolution: "entities@npm:7.0.1"
   checksum: 10c0/b4fb9937bb47ecb00aaaceb9db9cdd1cc0b0fb649c0e843d05cf5dbbd2e9d2df8f98721d8b1b286445689c72af7b54a7242fc2d63ef7c9739037a8c73363e7ca
@@ -1015,7 +1008,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-builder@npm:^1.2.0":
+"fast-xml-builder@npm:^1.0.0":
   version: 1.2.1
   resolution: "fast-xml-builder@npm:1.2.1"
   dependencies:
@@ -1025,19 +1018,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^5.3.3":
-  version: 5.9.3
-  resolution: "fast-xml-parser@npm:5.9.3"
+"fast-xml-parser@npm:~5.4.2":
+  version: 5.4.2
+  resolution: "fast-xml-parser@npm:5.4.2"
   dependencies:
-    "@nodable/entities": "npm:^2.2.0"
-    fast-xml-builder: "npm:^1.2.0"
-    is-unsafe: "npm:^1.0.1"
-    path-expression-matcher: "npm:^1.5.0"
-    strnum: "npm:^2.4.1"
-    xml-naming: "npm:^0.1.0"
+    fast-xml-builder: "npm:^1.0.0"
+    strnum: "npm:^2.1.2"
   bin:
     fxparser: src/cli/cli.js
-  checksum: 10c0/0f4f4b98aec027334be1d4462c6e09649bda8dd8bd1c75f6e985f4000ce4a40ea4540745fa7ac081cd65bf462b0c22fce87da9abc5ede51c9727398c91cacd5f
+  checksum: 10c0/83ea57fda336f3fdcc8938ecc8730236a3e084843cbe6c2fb009c3f2fe2811570316735c1c7e76a4d3dbce2b0387312b106444d5d603dc6135b4bcf0e07251bb
   languageName: node
   linkType: hard
 
@@ -1053,13 +1042,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"feedsmith@npm:2.9.0":
-  version: 2.9.0
-  resolution: "feedsmith@npm:2.9.0"
+"feedsmith@npm:2.9.1":
+  version: 2.9.1
+  resolution: "feedsmith@npm:2.9.1"
   dependencies:
-    entities: "npm:^7.0.0"
-    fast-xml-parser: "npm:^5.3.3"
-  checksum: 10c0/3b28c1f61f8e9fb2240921d7c138798b3c72a31b96cb55e67d6687dff42a5f2158bdfa95fb1f6de55d5ebcc3c33797bf7d30337c897265cd68327d762a5b9472
+    entities: "npm:^7.0.1"
+    fast-xml-parser: "npm:~5.4.2"
+  checksum: 10c0/6bb11a42fbd55886996715d4cb130d2126b68fd4a0f571b7f511193c7bfd6ff778a99df3302ea1ccfb48d56ae722ff41bfca94155aa650b7209e457060a5f9c7
   languageName: node
   linkType: hard
 
@@ -1354,16 +1343,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hexo-generator-feed@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "hexo-generator-feed@npm:4.0.0"
-  dependencies:
-    feedsmith: "npm:2.9.0"
-    hexo-util: "npm:4.0.0"
-  checksum: 10c0/5bdb9ddb40839e70c46de52324b40970af78f72f2c3bb53f315be8cd08cd61b6c4c46a82c3ee7d6fe17777416c7535c6976b68bf1375e89bca934ea1f0f925e5
-  languageName: node
-  linkType: hard
-
 "hexo-generator-index@npm:^3.0.0":
   version: 3.0.0
   resolution: "hexo-generator-index@npm:3.0.0"
@@ -1425,6 +1404,16 @@ __metadata:
   version: 3.0.0
   resolution: "hexo-pagination@npm:3.0.0"
   checksum: 10c0/4a58689da8cd69da85153eddc2202df237b2734c0fe03b9f7104ec450b5f30fd7bcea8dd80fbc25924b44aee54efbc07b842f64b8b67285d45ed0bf3a9cfb473
+  languageName: node
+  linkType: hard
+
+"hexo-pretty-feed@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "hexo-pretty-feed@npm:2.1.0"
+  dependencies:
+    feedsmith: "npm:2.9.1"
+    hexo-util: "npm:4.0.0"
+  checksum: 10c0/0d58d7c9e096744eed5752be892bf92ec9b163ec4da8c129905b8838642c81696a4bb7519009101efab0cfb027e472d34468980de03645b678a17171d84f4e64
   languageName: node
   linkType: hard
 
@@ -1494,11 +1483,11 @@ __metadata:
     hexo: "npm:^7.0.0"
     hexo-generator-archive: "npm:^2.0.0"
     hexo-generator-category: "npm:^2.0.0"
-    hexo-generator-feed: "npm:^4.0.0"
     hexo-generator-index: "npm:^3.0.0"
     hexo-generator-search: "npm:^2.4.3"
     hexo-generator-sitemap: "npm:^3.0.1"
     hexo-generator-tag: "npm:^2.0.0"
+    hexo-pretty-feed: "npm:^2.1.0"
     hexo-renderer-ejs: "npm:^2.0.0"
     hexo-renderer-marked: "npm:^7.0.1"
     hexo-renderer-pug: "npm:^3.0.0"
@@ -1853,13 +1842,6 @@ __metadata:
     has-tostringtag: "npm:^1.0.2"
     hasown: "npm:^2.0.2"
   checksum: 10c0/1d3715d2b7889932349241680032e85d0b492cfcb045acb75ffc2c3085e8d561184f1f7e84b6f8321935b4aea39bc9c6ba74ed595b57ce4881a51dfdbc214e04
-  languageName: node
-  linkType: hard
-
-"is-unsafe@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "is-unsafe@npm:1.0.1"
-  checksum: 10c0/93c6d4784dee35f32357718bad5b39f9ec6cd051e2103885a803e673a9b408f46bd87c4776eed4f9742f9f35b0d83e6411549c6afcd01884ded1aa8fbbc651b9
   languageName: node
   linkType: hard
 
@@ -3078,7 +3060,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strnum@npm:^2.4.1":
+"strnum@npm:^2.1.2":
   version: 2.4.1
   resolution: "strnum@npm:2.4.1"
   dependencies:

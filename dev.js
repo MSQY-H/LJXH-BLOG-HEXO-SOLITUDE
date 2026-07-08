@@ -10,6 +10,7 @@ const serveStatic = require('serve-static');
 let PORT = 3000;
 let silent = false;
 let quickMode = false;
+let directServe = false;   // 新增：直接启动服务器，跳过首次构建
 
 const args = process.argv.slice(2);
 for (let i = 0; i < args.length; i++) {
@@ -21,18 +22,21 @@ for (let i = 0; i < args.length; i++) {
 选项:
   -s, --silent    静默模式，不输出 hexo 日志（错误除外）
   -q, --quick     快速模式，省略手动添加的延迟（防抖延迟除外）
+  -d, --direct    直接启动服务器，跳过首次构建（适用于已生成 public 的情况）
   -h, --help      显示此帮助信息
 
 示例:
   node dev.js 4000
   node dev.js -s 4000
-  node dev.js -q
+  node dev.js -q -d
 `);
     process.exit(0);
   } else if (arg === '-s' || arg === '--silent') {
     silent = true;
   } else if (arg === '-q' || arg === '--quick') {
     quickMode = true;
+  } else if (arg === '-d' || arg === '--direct') {
+    directServe = true;
   } else if (/^\d+$/.test(arg) && PORT === 3000) {
     PORT = parseInt(arg, 10);
   }
@@ -149,19 +153,15 @@ function outputLog(category, levelOrType, message, extra = {}) {
     if (isError) {
       hexoErrorContext = true;   // 进入错误上下文
     } else if (hexoErrorContext) {
-      // 已经处于错误上下文，判断是否应该退出
-      // 遇到正常的构建信息（非错误类 INFO）即退出上下文
       if (level === 'INFO' && !isError) {
         hexoErrorContext = false;
       } else if (level === 'DEBUG') {
-        // DEBUG 通常是正常信息，退出上下文
         hexoErrorContext = false;
       } else if (level === 'WARN') {
-        // WARN 可能是错误相关的警告，保留上下文
+        // 保留上下文
       }
     }
 
-    // 输出决策：silent 模式下只输出错误；若处于错误上下文则强制输出
     if (silent && !isError && !hexoErrorContext) return;
 
     let prefixColor;
@@ -247,11 +247,11 @@ function startServer() {
 
     const httpServer = app.listen(PORT, () => {
       serverStarting = false;
-      server = httpServer;   // 保存 HTTP 服务器实例，支持 close()
+      server = httpServer;
       const localIP = getLocalIP();
       logStepMid(`本地访问: http://localhost:${PORT}`);
       logStepMid(`局域网访问: http://${localIP}:${PORT}`);
-      logStepMid('文件监控已就绪');
+      if (watcher) logStepMid('文件监控已就绪');
       logStepEndSuccess('服务器已启动');
       printShortcuts();
       scheduleScroll();
@@ -276,7 +276,8 @@ function startWatcher() {
   watcher.on('unlink', p => { scheduleBuild(`删除: ${p}`); devInfo(`文件删除: ${p}`); });
   watcher.on('ready', () => {
     watcherReady = true;
-    startServer();   // 确保服务器启动
+    // 如果服务器还未启动，则启动（直接模式下由外部调用）
+    startServer();
   });
 }
 
@@ -293,7 +294,7 @@ function build(trigger) {
   if (buildTimer) { clearTimeout(buildTimer); buildTimer = null; }
   if (isBuilding) abortCurrentBuild();
 
-  hexoErrorContext = false;   // 新构建开始，重置错误上下文
+  hexoErrorContext = false;
   isBuilding = true;
   lastBuildFailed = false;
   initializing = false;
@@ -311,7 +312,7 @@ function build(trigger) {
 function fullRebuild() {
   if (isBuilding) abortCurrentBuild();
 
-  hexoErrorContext = false;   // 新构建开始，重置错误上下文
+  hexoErrorContext = false;
   isBuilding = true;
   lastBuildFailed = false;
   initializing = false;
@@ -413,8 +414,6 @@ function runHexo(args, opts = {}) {
     isBuilding = false;
     lastBuildFailed = (code !== 0);
     currentBuildProcess = null;
-
-    // 构建结束，重置错误上下文（可选，安全起见）
     hexoErrorContext = false;
 
     if (!suppressEndLog) {
@@ -427,8 +426,8 @@ function runHexo(args, opts = {}) {
 
     if (firstBuild && code === 0) {
       firstBuild = false;
-      startWatcher();   // 启动监控，内部会调用 startServer
-      startServer();    // 立即尝试启动，双重保险
+      startWatcher();
+      startServer();
     } else if (firstBuild && code !== 0) {
       firstBuild = false;
       logStepEndFail('首次构建失败，退出');
@@ -630,23 +629,40 @@ function init() {
 
   printWelcome();
 
-  if (!fs.existsSync(PUBLIC_DIR)) fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+  // 确保 public 目录存在（如果是直接启动而目录不存在，给出警告但不阻止启动）
+  if (!fs.existsSync(PUBLIC_DIR)) {
+    if (directServe) {
+      devInfo('public 目录不存在，服务器可能返回 404，建议先执行 hexo generate');
+    } else {
+      fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+    }
+  }
 
   const delay = quickMode ? 0 : 1000;
   setTimeout(() => {
-    logStepStart('首次构建');
-    firstBuild = true;
-    isBuilding = true;
-    lastBuildFailed = false;
-    initializing = false;
-    progressMode = 'bounce';
-    sliderWidth = BOUNCE_WIDTH;
-    sliderPos = 0;
-    dir = 1;
-    buildStartTime = Date.now();
-    forceRender();
-
-    currentBuildProcess = runHexo(['g', '--incremental']);
+    if (directServe) {
+      // 直接启动模式：跳过首次构建，直接启动服务器和文件监控
+      initializing = false;
+      logStepStart('直接启动模式 (跳过构建)', '⚡');
+      startWatcher();   // 启动监控（会内部调用 startServer）
+      startServer();    // 确保服务器启动
+      // 强制渲染一帧，让状态栏更新
+      forceRender();
+    } else {
+      // 正常首次构建
+      logStepStart('首次构建');
+      firstBuild = true;
+      isBuilding = true;
+      lastBuildFailed = false;
+      initializing = false;
+      progressMode = 'bounce';
+      sliderWidth = BOUNCE_WIDTH;
+      sliderPos = 0;
+      dir = 1;
+      buildStartTime = Date.now();
+      forceRender();
+      currentBuildProcess = runHexo(['g', '--incremental']);
+    }
   }, delay);
 
   if (process.stdin.isTTY) {

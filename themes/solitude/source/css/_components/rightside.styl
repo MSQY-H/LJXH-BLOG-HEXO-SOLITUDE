@@ -85,7 +85,11 @@
 
     // 返回顶部按钮特殊样式
     &.top
-      background: linear-gradient(135deg, var(--efu-card-bg), var(--theme-color-alpha-10))
+      //修改部分(-)
+      //background: linear-gradient(135deg, var(--efu-card-bg), var(--theme-color-alpha-10))
+      //(+)
+      background: var(--efu-card-bg)
+      //结束
       border: 1px solid var(--theme-color-alpha-20)
       
       &:hover
@@ -123,7 +127,6 @@
       span
         font-size: 12px
         font-weight: 500
-
     // 配置按钮
     &.config
       &:hover
@@ -278,7 +281,11 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)
 
       &.top
-        background: linear-gradient(135deg, var(--efu-card-bg), var(--theme-color-alpha-10))
+        //修改部分(-)
+        //background: linear-gradient(135deg, var(--efu-card-bg), var(--theme-color-alpha-10))
+        //(+)
+        background: var(--efu-card-bg)   
+        //结束
         border-color: var(--theme-color-alpha-30)
         opacity: 0.9
         
