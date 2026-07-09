@@ -27,6 +27,6 @@ links:
         description: LJXH的生活博客
         avatar: /img/avatar.webp
       - name: HXJL BLOG # 友链名称 
-        link: https://blog.ljxh-blog.cc.cd # 友链地址 
+        link: https://ljxh-blog.cc.cd # 友链地址 
         description: HXJL的博客 # 友链简介 
         avatar: https://i.ibb.co/WW9gRnNk/IMG-20251228-111816.jpg# 显示头像 

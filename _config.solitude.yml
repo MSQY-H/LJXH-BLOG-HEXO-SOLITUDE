@@ -550,6 +550,8 @@ footer:
 
   # 备案
   beian:
+    - name: 字体来自kivo.wiki
+      url: https://kivo.wiki
     # - name: 湘公网安备43048102000175号
     #   icon: https://beian.mps.gov.cn/img/logo01.dd7ff50e.png
     #   url: https://beian.mps.gov.cn/#/query/webSearch
