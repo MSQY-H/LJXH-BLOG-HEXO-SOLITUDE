@@ -28,7 +28,7 @@
   --efu-shadow-nav 0 5px 20px 0px rgba(28, 28, 28, 0.4)
   --efu-card-bg #1b1c20
   //修改部分(+)
-  --efu-nav-bg #1b1c20b2
+  --efu-nav-bg #1b1c20
   //结束
   --efu-card-bg #1b1c20
   --efu-card-bg-op var(--efu-white-op)
@@ -45,8 +45,12 @@
   --style-border-forever 2px solid var(--efu-lighttext)
   --efu-hl-bg $hl_bg_dark
   --efu-hltools-bg $hltools_bg_dark
-  --efu-background #18171ddd
-
+  --efu-background #18171d
+  //修改部分(+)
+  --efu-card-bg-alpha #1b1c20b2
+  --efu-nav-bg-alpha #1b1c20b2
+  --loading-bg #000000dd
+  //结束
 [data-theme=light]
   --efu-theme $light_theme
   --efu-theme-op $light_theme_op
@@ -77,9 +81,7 @@
   --efu-secondbg-bg var(--efu-secondbg)
   --efu-shadow-nav 0 5px 12px -5px rgba(102, 68, 68, 0.05)
   --efu-card-bg #fff
-  //修改部分(+)
-  --efu-nav-bg #ffffffb2
-  //结束
+  --efu-nav-bg #ffffff
   --efu-card-bg-op var(--efu-black-op)
   --efu-card-bg-none rgba(255, 255, 255, 0)
   --efu-shadow-lightblack 0 5px 12px -5px rgba(102, 68, 68, 0.00)
@@ -96,8 +98,12 @@
   --efu-hl-bg $hl_bg_light
   --efu-hltools-bg $hltools_bg_light
 
-  --efu-background #f7f9fedd
-
+  --efu-background #f7f9fe
+  //修改部分(+)
+  --efu-card-bg-alpha #ffffffb2
+  --efu-nav-bg-alpha #ffffffb2
+  --loading-bg #ffffffdd
+  //结束
 :root
   +maxWidth768()
     --style-border 0px solid var(--efu-none)

@@ -31,8 +31,11 @@ nav:
   # Left Box
   # 左侧盒子
   group:
-  #  project: # name
-  #    Solitude: https://github.com/everfu/hexo-theme-solitude || /img/pwa/favicon.ico # name: url || icon
+    博客相关:
+      开源: https://github.com/MSQY-H/LJXH-BLOG-HEXO-SOLITUDE || https://simpleicons.org/icons/github.svg
+      Solitude: https://solitude.js.org/cn || /img/solitude_logo.png
+    项目: # name
+      主页: https://ljxh-h.cc.cd || /img/pwa/favicon.ico # name: url || icon
 
   # Menu
   # 菜单
