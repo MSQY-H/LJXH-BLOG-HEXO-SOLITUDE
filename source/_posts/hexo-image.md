@@ -1,7 +1,7 @@
 ---
 title: Hexo图片引用相关问题
 date: 2026-07-06 20:38:46
-description: 关于Hexo的图片引用
+description: Hexo 文章图片引用问题的描述与多个解决方案
 tags:
   - Hexo
   - Solitude
