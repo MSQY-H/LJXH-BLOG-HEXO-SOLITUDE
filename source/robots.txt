@@ -5,4 +5,4 @@ Disallow: /archives/
 Disallow: /categories/
 Disallow: /tags/
 
-Sitemap: https://www.ljxh-h.cc.cd/sitemap.xml
+Sitemap: https://www.msqy.cc.cd/sitemap.xml
