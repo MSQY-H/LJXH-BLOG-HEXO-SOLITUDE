@@ -13,7 +13,7 @@ authorinfo:
 
 contentinfo: # Top personal information display
   sup: 你好，很高兴认识你👋
-  name: 我是LJXH # Name
+  name: 我是 MSQY # Name
   title: 学生、独立开发者 # Introduction
   tip: 个签
   slogan: NVIDIA GeForce RTX
@@ -57,7 +57,7 @@ skills: # Add as needed
     - title: Android
       img: https://cdn.simpleicons.org/android/white
       color: "#3DDC84"
-    - title: Github
+    - title: GitHub
       img: https://cdn.simpleicons.org/github/white
       color: "#181717"
     - title: Cloudflare
@@ -99,7 +99,7 @@ cause:
     <br>
     这里将会有各种各样的东西，想到什么就写什么，不会局限于某一方面。
     <br>
-    最后，欢迎大家来到LJXH的博客！玩得愉快！
+    最后，欢迎大家来到 MSQY 的博客！玩得愉快！
     <br>
 
 # comic 和 like-technology 二选一 你全要也可以
@@ -146,7 +146,7 @@ likes:
     bg: "https://is1-ssl.mzstatic.com/image/thumb/Video221/v4/1b/11/22/1b11228a-3eca-f6e7-8c30-964fb976fd4c/55678cf6ee3cb63b9ba09fa557df09d6_Preview_Image_Intermediate_nonvideo_437341045_2647778896.png/2400x1350mv.webp"
     tips: "喜欢的歌"
     title: "周杰伦"
-    subtips: "和 LJXH 一起听"
+    subtips: "和 MSQY 一起听"
     button: true
     button_link: "/music/"
     button_text: "音乐馆"

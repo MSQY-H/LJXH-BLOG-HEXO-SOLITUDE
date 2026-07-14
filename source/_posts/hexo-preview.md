@@ -56,7 +56,7 @@ yarn add hexo-solitude-tag
 
 ## 大问题
 
-正当我兴致十足，执行了 Hexo 三连，打开了`localhost:3000`后：
+正当我兴致十足，执行了 Hexo 三连，打开了 `localhost:3000` 后：
 
 ``` Shell
 hexo cl && hexo g && hexo s
@@ -66,11 +66,11 @@ hexo cl && hexo g && hexo s
 
 本来这是个按钮：
 
-{% button 'fa-brands fa-github' '我的Github' 'https://github.com/MSQY-H' %}
+{% button 'fa-brands fa-github' '我的GitHub' 'https://github.com/MSQY-H' %}
 
 结果变成了：
 
-<i class="fa-brands fa-github"></i>我的Github
+<i class="fa-brands fa-github"></i>我的GitHub
 
 那可难搞了。
 
@@ -78,7 +78,7 @@ hexo cl && hexo g && hexo s
 
 经过与B大哥与D大哥{% spoiler 'blur' '（必应和 Deepseek）' %}两位好朋友的探讨研究后，我终于发现了问题。
 
-问题在于`hexo s`。它的生成机制与`hexo g`不同，可能内部会与插件产生冲突。
+问题在于 `hexo s`。它的生成机制与 `hexo g` 不同，可能内部会与插件产生冲突。
 
 其实不止我一个人有这个问题，网上很多人在使用插件时也有类似问题。
 
@@ -91,11 +91,11 @@ hexo g
 npx serve public
 ```
 
-就可以了。（不一定要用`npx serve public`，其他可以启动服务器的命令也可以）
+就可以了。（不一定要用 `npx serve public`，其他可以启动服务器的命令也可以）
 
-其实原理非常简单：虽然`hexo s`实现机制太过复杂，可能会出现问题，但是`hexo g`不会有这个问题（要是问题还在，就检查一下代码或者给开发者提 issue 吧）
+其实原理非常简单：虽然 `hexo s` 实现机制太过复杂，可能会出现问题，但是 `hexo g` 不会有这个问题（要是问题还在，就检查一下代码或者给开发者提 issue 吧）
 
-所以我们曲线救国：通过`hexo g`生成静态文件，再通过`npx serve public`启动本地服务器。
+所以我们曲线救国：通过 `hexo g` 生成静态文件，再通过 `npx serve public` 启动本地服务器。
 
 问题解决了，完美！
 
@@ -110,7 +110,7 @@ npx serve public
 其实这个脚本核心逻辑是这样的：
 
 - 使用 chokidar 监听文件变动
-- 执行`hexo g --incremental`
+- 执行 `hexo g --incremental`
 - 启动静态服务器
 
 {% note 'warning modern' 'fas fa-warning' %}
@@ -807,7 +807,7 @@ function init() {
 init();
 ```
 
-在博客根目录保存为`dev.js`（或者其他的名字也可以）
+在博客根目录保存为 `dev.js`（或者其他的名字也可以）
 
 先安装依赖：
 
@@ -863,7 +863,7 @@ node dev.js [端口] [选项]
 
 脚本使用 chokidar 库，支持监测文件变动自动重新构建。以后改文章不用重新输入命令了！
 
-另外，脚本自动构建使用的是`hexo g --incremental`，对于文章变动比较高效。如果你改动了配置文件或主题文件，建议执行一次完整重建。
+另外，脚本自动构建使用的是 `hexo g --incremental`，对于文章变动比较高效。如果你改动了配置文件或主题文件，建议执行一次完整重建。
 
 太方便了！当然，你也可以自己 Vibe Coding 一个，实现自己想要的功能！
 

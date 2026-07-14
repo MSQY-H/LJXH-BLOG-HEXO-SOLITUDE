@@ -9,8 +9,8 @@ banner: false
 ## 本站信息
 
 ```
-网站名称：LJXH
-网站描述：NVIDIA GeForce RTX 5060 Ti
+网站名称：MSQY
+网站描述：NVIDIA GeForce RTX 5060 Ti!
 网站链接：https://www.ljxh-h.cc.cd/
 网站头像：https://i.ibb.co/C52GJDbp/avatar.webp
 ```

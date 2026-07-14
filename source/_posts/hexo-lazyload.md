@@ -31,23 +31,23 @@ lazyload:
 - Solitude 版本：3.0.21
 - 预览方式：`hexo g && npx serve public`
 
-`field`配置为`post`时，图片懒加载完全没问题，只是文章以外的其它页面就没有懒加载。
+`field` 配置为 `post` 时，图片懒加载完全没问题，只是文章以外的其它页面就没有懒加载。
 
-`field`配置为`site`时，网站就会崩溃，就跟我的单页网站缺少了 js 一样，什么都点不了。
+`field` 配置为 `site` 时，网站就会崩溃，就跟我的单页网站缺少了 js 一样，什么都点不了。
 
 我们想要完整的图片懒加载，怎么办？
 
 ## 解决方案
 
-### 1. 使用`post`模式
+### 1. 使用 `post` 模式
 
-懒得改主题源码，就用`post`模式吧。
+懒得改主题源码，就用 `post` 模式吧。
 
 但是，愿意折腾的我们，怎么能安于现状？
 
 ### 2. 修改主题源码
 
-打开`博客根目录/themes/solitude/scripts/filter/lazyload.js`
+打开 `博客根目录/themes/solitude/scripts/filter/lazyload.js`
 
 源代码直接使用正则表达式操作 html 实现懒加载：
 
@@ -57,17 +57,17 @@ const lazyload = (content, img) => {
 }
 ```
 
-html 千变万化，正则可能破坏掉 html 标签导致页面出现错误，可能波及`<scripts>`标签。{% spoiler 'blur' '祖传代码发力了（' %}
+html 千变万化，正则可能破坏掉 html 标签导致页面出现错误，可能波及 `<scripts>` 标签。{% spoiler 'blur' '祖传代码发力了（' %}
 
-至于`post`模式能用，应该是因为`post`模式处理的文章界面相对简单，正则刚好可以处理
+至于 `post` 模式能用，应该是因为 `post` 模式处理的文章界面相对简单，正则刚好可以处理
 
-所以要换种处理方式，用`cheerio`这种成熟的处理 html 的库。
+所以要换种处理方式，用 `cheerio` 这种成熟的处理 html 的库。
 
 {% note 'warning modern' 'fas fa-warning' %}
 以下代码针对我的开发环境编写，不一定通用，并非官方方案，此脚本仅作参考。
 {% endnote %}
 
-先安装`cheerio`库。
+先安装 `cheerio` 库。
 
 {% tabs 安装插件 %}
 
@@ -97,7 +97,7 @@ yarn add cheerio
 
 {% endtabs %}
 
-然后将`博客根目录/themes/solitude/scripts/filter/lazyload.js`全部替换为以下代码：
+然后将 `博客根目录/themes/solitude/scripts/filter/lazyload.js` 全部替换为以下代码：
 
 ``` JavaScript
 'use strict'
@@ -147,8 +147,8 @@ npx serve public
 
 ## 总结
 
-经过我们的不懈努力， Hexo Solitude 主题的懒加载终于正常了！
+经过我们的不懈努力，Hexo Solitude 主题的懒加载终于正常了！
 
-这个问题根源在于正则不适合处理 html ，而主题刚好采用了这种方式。也许在别人那刚好能用，到我这里刚好用不了吧。
+这个问题根源在于正则不适合处理 html，而主题刚好采用了这种方式。也许在别人那刚好能用，到我这里刚好用不了吧。
 
 ✨

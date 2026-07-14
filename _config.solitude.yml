@@ -20,7 +20,7 @@
 site:
   name:
     class: text # text / i_class / img
-    custom: LJXH # Solitude / fas fa-ghost / /img/pwa/favicon.ico
+    custom: MSQY # Solitude / fas fa-ghost / /img/pwa/favicon.ico
   icon: /img/pwa/favicon.ico # Site icon / 网站图标
 # --------------------------- end ---------------------------
 
@@ -32,10 +32,10 @@ nav:
   # 左侧盒子
   group:
     博客相关:
-      开源: https://github.com/MSQY-H/LJXH-BLOG-HEXO-SOLITUDE || https://simpleicons.org/icons/github.svg
+      源码: https://github.com/MSQY-H/LJXH-BLOG-HEXO-SOLITUDE || https://simpleicons.org/icons/github.svg
       Solitude: https://solitude.js.org/cn || /img/solitude_logo.png
     项目: # name
-      主页: https://ljxh-h.cc.cd || /img/pwa/favicon.ico # name: url || icon
+      主页: https://msqy.cc.cd || /img/pwa/favicon.ico # name: url || icon
 
   # Menu
   # 菜单
@@ -148,7 +148,7 @@ aside:
       img: /img/avatar.webp # url
       sticker: # url, 24x24 size
     # 介绍 / Introduction
-    description: NVIDIA GeForce RTX 5060 Ti
+    description: NVIDIA GeForce RTX 5060 Ti!
     # 内容 / Content
     content: 咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧咕咕嘎嘎🐧
     state:
@@ -164,8 +164,8 @@ aside:
     # social
     # 社交信息图标
     information:
-     Github: https://github.com/msqy-h || fab fa-github # Name: link || icon
-     Mail: mailto:LJXH_H@outlook.com || fas fa-envelope
+     GitHub: https://github.com/msqy-h || fab fa-github # Name: link || icon
+     Mail: mailto:Hydroxid_Hualin@outlook.com || fas fa-envelope
     #  Bilibili: https://space.bilibili.com/1329819902 || fab fa-bilibili
   # --------------------------- end ---------------------------
 
@@ -531,12 +531,12 @@ footer:
   information:
     author: true # img url / false
     left:
-      Github: https://github.com/MSQY-H || fab fa-github # 名称: 链接 || 图标
+      GitHub: https://github.com/MSQY-H || fab fa-github # 名称: 链接 || 图标
       # Mail: mailto:LJXH_H@outlook.com || far fa-envelope
     right:
       # Bilibili: https://space.bilibili.com/1329819902 || fab fa-bilibili
       # Douyin: https://v.douyin.com/iJsLc8jt/ || fab fa-tiktok
-      Mail: mailto:LJXH_H@outlook.com || far fa-envelope
+      Mail: mailto:Hydroxid_Hualin@outlook.com || far fa-envelope
   # 友情链接
   group:
     导航:
