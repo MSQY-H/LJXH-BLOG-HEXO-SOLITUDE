@@ -780,7 +780,7 @@ extends:
   # Insert in body
   # 插入到 body
   body:
-    - <h1 style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;">MSQY - 技术博客与生活分享</h1>
+  #  - <h1 style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;">MSQY - 技术博客与生活分享</h1>
   #  - <script src="https://cdn.bootcdn.net/ajax/libs/pace/1.2.4/pace.min.js"></script>
 # --------------------------- end ---------------------------
 
