@@ -29,7 +29,7 @@
     "hexo-solitude-tag": "^1.0.22",
     "hexo-theme-landscape": "^1.0.0",
     "hexo-wordcount": "^6.0.1",
-    "terminal-kit": "^3.1.3",
+    "terminal-kit": "^3.1.4",
     "yarn": "^1.22.22"
   },
   "devDependencies": {

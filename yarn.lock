@@ -1479,7 +1479,7 @@ __metadata:
     hexo-theme-landscape: "npm:^1.0.0"
     hexo-wordcount: "npm:^6.0.1"
     serve-static: "npm:^2.2.1"
-    terminal-kit: "npm:^3.1.3"
+    terminal-kit: "npm:^3.1.4"
     yarn: "npm:^1.22.22"
   languageName: unknown
   linkType: soft
@@ -3094,9 +3094,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"terminal-kit@npm:^3.1.3":
-  version: 3.1.3
-  resolution: "terminal-kit@npm:3.1.3"
+"terminal-kit@npm:^3.1.4":
+  version: 3.1.4
+  resolution: "terminal-kit@npm:3.1.4"
   dependencies:
     "@cronvel/get-pixels": "npm:^3.4.1"
     chroma-js: "npm:^2.4.2"
@@ -3106,7 +3106,7 @@ __metadata:
     seventh: "npm:^0.9.4"
     string-kit: "npm:^0.19.5"
     tree-kit: "npm:^0.8.10"
-  checksum: 10c0/b96e0de5d845750d6a42dddf5bdfe85e4e64e0c203b5a448d394199c0c04a297b59d39312495481f140a5b6d4124019283ac0196182ff3f6c290853192c5e200
+  checksum: 10c0/38630aee38ada04e13a3b4712fe163585c4bc0796e7e649c33c91b57ddad09d22203894c33ab9c4c526daa7bfadd24ef874a4e861a2d1aadb40d182b76b2fde5
   languageName: node
   linkType: hard
 
